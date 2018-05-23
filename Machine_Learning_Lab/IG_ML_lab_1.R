@@ -34,7 +34,10 @@ returned_orders <- inner_join(orders, returns, by = 'Order.ID')
 group_by(returned_orders, year(Order.Date)) %>% summarise(profit_loss = sum(Profit))
 
 #2. How many customer returned more than once? more than 5 times?
-length(unique(returned_orders$Customer.ID))
+nrow(group_by(returned_orders, Order.ID, Customer.ID) %>% group_by(Customer.ID) %>%
+       summarise(count=n()) %>% filter(count >1))
+nrow(group_by(returned_orders, Order.ID, Customer.ID) %>% group_by(Customer.ID) %>% 
+       summarise(count=n()) %>% filter(count >5))   
 
 #3. Which regions are more likely to return orders?
 returned_orders %>% group_by(Region.y) %>% summarise(count=n()) %>% arrange(desc(count)) %>% head((20))
