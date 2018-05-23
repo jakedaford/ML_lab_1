@@ -4,6 +4,7 @@ returns <- read.csv("./data/Returns.csv",  stringsAsFactors = FALSE)
 ## Part I: Preprocessing and EDA
 library(tidyverse)
 library(dplyr)
+library(data.table)
 str(orders)
 summary(orders)
 orders$Profit = as.numeric(parse_number(gsub("\\$","",orders$Profit)))
@@ -13,24 +14,24 @@ orders$Sales= as.numeric(parse_number(gsub("\\$","",orders$Sales)))
 orders$Ship.Date = as.Date(orders$Ship.Date, format = "%m/%d/%y")
 orders$Order.Date = as.Date(orders$Order.Date, format = "%m/%d/%y")
 
-qty_group <- orders %>% select (Ship.Date, Quantity) %>% group_by(Ship.Date) %>% 
-  summarise(count = sum(Quantity)) %>% arrange(Ship.Date)
+qty_group <- orders %>% select (Order.Date, Quantity) %>% group_by(Order.Date) %>% 
+  summarise(count = sum(Quantity)) %>% arrange(Order.Date)
 
-ggplot(data = qty_group, aes(x = Ship.Date, y = count)) + geom_line(aes(color='identity'))
+ggplot(data = qty_group, aes(x = Order.Date, y = count)) + geom_line(aes(color='identity'))
 
 
-group_cat <- orders %>% select (Ship.Date, Category, Quantity) %>% group_by(Ship.Date, Category) %>% 
-  summarise(count = sum(Quantity)) %>% arrange(Ship.Date)
+group_cat <- orders %>% select (Order.Date, Category, Quantity) %>% group_by(Order.Date, Category) %>% 
+  summarise(count = sum(Quantity)) %>% arrange(Order.Date)
 
-ggplot(data = group_cat, aes(x = Ship.Date, y = count)) + geom_line(aes(color = Category))
+ggplot(data = group_cat, aes(x = Order.Date, y = count)) + geom_line(aes(color = Category))
 
 ### Problem 3: Why did customers make returns?
 #Merge orders with the returns
 
-returned_orders <- left_join(orders, returns, by = 'Order.ID') %>% filter(!is.na(Returned))
+returned_orders <- inner_join(orders, returns, by = 'Order.ID') 
 
-#1. How much profit did we lose due to returns each year
-sum(returned_orders$Profit)
+#1. How much profit did we lose due to returns each year?
+group_by(returned_orders, year(Order.Date)) %>% summarise(profit_loss = sum(Profit))
 
 #2. How many customer returned more than once? more than 5 times?
 length(unique(returned_orders$Customer.ID))
