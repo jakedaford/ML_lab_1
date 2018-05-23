@@ -1,5 +1,6 @@
 library(ggplot2)
 library(dplyr)
+library(data.table)
 
 orders = read.csv('./Machine_Learning_Lab/data/Orders.csv', stringsAsFactors = F)
 returns = read.csv('./Machine_Learning_Lab/data/Returns.csv', stringsAsFactors = F)
@@ -37,7 +38,21 @@ g = ggplot(data = seasonality, aes(x = Order.Date, y = count)) +
 g
 
 #### Problem 3 ####
+returned_orders = inner_join(orders, returns, by = 'Order.ID')
 
+#1
 
+returned_orders_year = returned_orders %>%
+  group_by(year = year(Order.Date)) %>%
+  summarise(profits_lost = sum(Profit))
 
+g = ggplot(data = returned_orders_year, aes(x = year, y = profits_lost)) +
+  geom_bar(stat = 'identity')
+g
+
+#2
+
+returning_customers = returned_orders %>%
+  group_by(Customer.ID) %>%
+  
 
