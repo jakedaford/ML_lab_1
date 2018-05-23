@@ -52,7 +52,24 @@ g
 
 #2
 
-returning_customers = returned_orders %>%
+more_than_once_returning_customers = returned_orders %>%
+  group_by(Customer.ID, Order.ID) %>%
   group_by(Customer.ID) %>%
+  summarise(count = n()) %>%
+  filter(count > 1)
   
+nrow(more_than_once_returning_customers)
+
+
+more_than_five_returning_customers = returned_orders %>%
+  group_by(Customer.ID, Order.ID) %>%
+  group_by(Customer.ID) %>%
+  summarise(count = n()) %>%
+  filter(count > 5)
+
+nrow(more_than_five_returning_customers)
+
+#3
+
+
 
